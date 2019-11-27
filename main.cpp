@@ -8,17 +8,17 @@ using namespace std;
 // Functions declaration
 int menu();
 
-void convertRoman();
+void convertRoman(int *number);
 
-void convertDecimal();
+int convertDecimal(string roman);
 
-void increase();
+void additionSubstraction(int operation);
 
-void decrease();
-
-// Main
 int main() {
     bool flag = true;
+    int num = 0;
+    string roman = "";
+
     while (flag) {
         const int choose = menu();
         switch (choose) {
@@ -26,16 +26,34 @@ int main() {
                 flag = false;
                 break;
             case 1:
-                convertRoman();
+                cout << endl << "Please enter number: ";
+                cin >> num;
+
+                // Reference http://www.cplusplus.com/forum/beginner/34856/
+                while (cin.fail()) {
+                    cout << "Please enter integer" << endl;
+                    cout << endl << "Please enter number: ";
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cin >> num;
+                }
+
+                convertRoman(&num);
                 break;
             case 2:
-                convertDecimal();
+                cout << endl << "Please enter roman number: ";
+                cin >> roman;
+                // Reference https://stackoverflow.com/questions/735204/convert-a-string-in-c-to-upper-case
+                transform(roman.begin(), roman.end(), roman.begin(), ::toupper);
+                num = convertDecimal(roman);
+                if (num > 0) cout << num << endl;
+
                 break;
             case 3:
-                increase();
+                additionSubstraction(3);
                 break;
             case 4:
-                decrease();
+                additionSubstraction(4);
                 break;
             default:
                 cout << "Invalid Value" << endl;
@@ -53,14 +71,14 @@ int menu() {
     cout << endl << "0 - Exit\n"
                     "1 - Convert decimal to roman\n"
                     "2 - Convert roman to decimal\n"
-                    "3 - Increase\n"
-                    "4 - Decrease" << endl;
+                    "3 - addition\n"
+                    "4 - substraction" << endl;
 
     cout << "Please enter your selection: ";
     cin >> choice;
 
     while (cin.fail()) {
-        cout << "Please enter integer type" << endl;
+        cout << "Please enter integer" << endl;
         cout << endl << "Please enter your selection: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -70,34 +88,24 @@ int menu() {
     return choice;
 }
 
-void convertRoman() {
-    int count = 12;
-    int number = 0;
-    int nums[] = {1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000};
-    string symbols[] = {"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"};
+// Reference https://www.geeksforgeeks.org/converting-decimal-number-lying-between-1-to-3999-to-roman-numerals/
+void convertRoman(int *number) {
+    if (*number < 1) cout << "None";
+    else {
+        int count = 12;
+        int nums[] = {1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000};
+        string symbols[] = {"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"};
 
-    cout << endl << "Please enter number: ";
-    cin >> number;
+        while (*number > 0) {
+            int div = *number / nums[count];
+            *number %= nums[count];
 
-    while (cin.fail()) {
-        cout << "Please enter integer type" << endl;
-        cout << endl << "Please enter number: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cin >> number;
-    }
+            while (div--) {
+                cout << symbols[count];
+            }
 
-    cout << endl << "number: " << number << endl;
-
-    while (number > 0) {
-        int div = number / nums[count];
-        number %= nums[count];
-
-        while (div--) {
-            cout << symbols[count];
+            count--;
         }
-
-        count--;
     }
 
     cout << endl;
@@ -114,14 +122,9 @@ int findNum(char symbol) {
     return -1;
 }
 
-void convertDecimal() {
-    string roman = "";
+// Reference https://www.geeksforgeeks.org/converting-roman-numerals-decimal-lying-1-3999/
+int convertDecimal(string roman) {
     int num = 0;
-
-    cout << endl << "Please enter roman number: ";
-    cin >> roman;
-    transform(roman.begin(), roman.end(), roman.begin(), ::toupper);
-
 
     for (int i = 0; i < roman.length(); i++) {
         int num1 = findNum(roman[i]);
@@ -140,14 +143,52 @@ void convertDecimal() {
         }
     }
 
-    if (num > 0) cout << num << endl;
-    else cout << "Please enter roman numeric" << endl;
+    if (num < 1) {
+        cout << "Please enter roman numeral" << endl;
+        return -1;
+    }
+
+    return num;
 }
 
-void increase() {
+void additionSubstraction(int operation) {
+    string strNum1 = "";
+    string strNum2 = "";
 
-}
+    cout << endl << "Please enter roman number1: ";
+    cin >> strNum1;
+    transform(strNum1.begin(), strNum1.end(), strNum1.begin(), ::toupper);
+    int num1 = convertDecimal(strNum1);
 
-void decrease() {
+    if (num1 < 0) {
+        while (true) {
+            cout << "Please enter roman number1: ";
+            cin >> strNum1;
+            transform(strNum1.begin(), strNum1.end(), strNum1.begin(), ::toupper);
+            num1 = convertDecimal(strNum1);
+            if (num1 > 0) break;
+        }
+    }
 
+    cout << endl << "Please enter roman number2: ";
+    cin >> strNum2;
+    transform(strNum2.begin(), strNum2.end(), strNum2.begin(), ::toupper);
+    int num2 = convertDecimal(strNum2);
+
+
+    if (num2 < 0) {
+        while (true) {
+            cout << "Please enter roman number2: ";
+            cin >> strNum2;
+            transform(strNum2.begin(), strNum2.end(), strNum2.begin(), ::toupper);
+            num2 = convertDecimal(strNum2);
+            if (num2 > 0) break;
+        }
+    }
+
+    int total = 0;
+
+    if (operation == 3) total = num1 + num2;
+    if (operation == 4) total = num1 - num2;
+    convertRoman(&total);
 }
